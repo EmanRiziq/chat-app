@@ -22,14 +22,24 @@ const io = socketIO(server, {
         methods: ['GET', 'POST', 'PUT']
     }
 })
+const users=[]
 
 io.on('connection', (socket) => {
     console.log('User is connected');
-    console.log(socket.id)
+    console.log(socket.id);
+    users.push(socket.id)
 
-    socket.on('message', (message) => {
-        console.log(`Message from ${socket.id} : ${message}`);
-    })
+
+    socket.on("join_room", (data) => {
+        socket.join(data);
+        console.log(`User with ID: ${socket.id} joined room: ${data}`);
+      });
+    
+      socket.on("send_message", (data) => {
+        socket.to(data.room).emit("receive_message", data);
+      });
+    
+     
 
     socket.on('disconnect', () => {
         console.log(`Socket ${socket.id} disconnected!`);
